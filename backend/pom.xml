@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.phyllosedis</groupId>
+    <artifactId>platform</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>platform</name>
+    <description>Платформа Phyllosedis</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <java.version>21</java.version>
+        <apache-age.version>1.6.0</apache-age.version>
+    </properties>
+
+    <modules>
+        <module>banking/banking-api</module>
+        <module>banking/banking-impl</module>
+        <module>messenger/messenger-api</module>
+        <module>messenger/messenger-impl</module>
+        <module>social/social-api</module>
+        <module>social/social-impl</module>
+        <module>app</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.age</groupId>
+                <artifactId>age-jdbc</artifactId>
+                <version>${apache-age.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>banking-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>social-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>messenger-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>banking-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>social-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>messenger-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
