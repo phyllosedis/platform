@@ -1,0 +1,7 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog">
+
+    <changeSet id="01" author="phyllosedis">
+        <sqlFile relativeToChangelogFile="true" path="01-init-banking-tables.sql"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -89,6 +89,12 @@
                 <version>3.3.4</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>4.29.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
