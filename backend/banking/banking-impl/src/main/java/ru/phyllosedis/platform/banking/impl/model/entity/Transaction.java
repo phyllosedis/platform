@@ -44,4 +44,11 @@ public class Transaction {
 
     @Column(name = "amount", precision = 20, scale = 2, nullable = false)
     private BigDecimal amount;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = ZonedDateTime.now();
+        }
+    }
 }
