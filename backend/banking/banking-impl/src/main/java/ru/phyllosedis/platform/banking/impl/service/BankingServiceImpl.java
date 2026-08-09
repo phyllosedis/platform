@@ -1,4 +1,4 @@
-package ru.phyllosedis.platform.banking.impl;
+package ru.phyllosedis.platform.banking.impl.service;
 
 import org.springframework.stereotype.Service;
 import ru.phyllosedis.platform.banking.api.dto.AccountBalanceDto;
