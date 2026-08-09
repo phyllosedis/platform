@@ -3,9 +3,10 @@ package ru.phyllosedis.platform.banking.impl.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import ru.phyllosedis.platform.banking.api.dto.transaction.Status;
-import ru.phyllosedis.platform.banking.api.dto.transaction.Type;
+import ru.phyllosedis.platform.banking.api.dto.transaction.TransactionStatus;
+import ru.phyllosedis.platform.banking.api.dto.transaction.TransactionType;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -31,13 +32,16 @@ public class Transaction {
 
     @Column(name = "type", nullable = false)
     @Enumerated(value = EnumType.ORDINAL)
-    private Type type;
+    private TransactionType type;
 
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.ORDINAL)
-    private Status status;
+    private TransactionStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     private ZonedDateTime createdAt;
+
+    @Column(name = "amount", precision = 20, scale = 2, nullable = false)
+    private BigDecimal amount;
 }

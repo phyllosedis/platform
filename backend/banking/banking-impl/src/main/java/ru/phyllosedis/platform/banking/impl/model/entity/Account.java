@@ -3,8 +3,10 @@ package ru.phyllosedis.platform.banking.impl.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
-import ru.phyllosedis.platform.banking.api.dto.transaction.Status;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountStatus;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,7 +35,14 @@ public class Account {
 
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.ORDINAL)
-    private Status status;
+    private AccountStatus status;
+
+    @Column(name = "\"type\"", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
+    private AccountType type;
+
+    @Column(name = "amount", precision = 20, scale = 2, nullable = false)
+    private BigDecimal amount;
 
     @OneToMany(mappedBy = "fromAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
