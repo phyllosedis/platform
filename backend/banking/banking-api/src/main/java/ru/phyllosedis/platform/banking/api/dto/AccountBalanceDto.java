@@ -12,4 +12,5 @@ import java.math.BigDecimal;
 public class AccountBalanceDto {
     private String accountNumber;
     private BigDecimal balance;
+    private Currency currency;
 }
