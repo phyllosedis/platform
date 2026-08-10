@@ -21,6 +21,7 @@ services:
     container_name: platform-backend
     ports:
       - "8080:8080"
+      - "5005:5005"
     env_file:
       - ./env/platform-postgres-template.env
       - ./env/platform-postgres.env
@@ -33,6 +34,8 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
 volumes:
   pg_data:
 
