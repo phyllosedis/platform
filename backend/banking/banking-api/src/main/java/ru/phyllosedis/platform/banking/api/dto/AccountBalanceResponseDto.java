@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountBalanceDto {
+public class AccountBalanceResponseDto {
     private String accountNumber;
     private BigDecimal balance;
     private Currency currency;

@@ -1,16 +1,17 @@
-package ru.phyllosedis.platform.app.exception.handler;
+package ru.phyllosedis.platform.app.exception.handler.banking;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.phyllosedis.platform.app.controller.BankingController;
+import ru.phyllosedis.platform.app.controller.banking.AccountController;
+import ru.phyllosedis.platform.app.exception.handler.ErrorResponseDto;
 import ru.phyllosedis.platform.banking.api.exception.AccountNotFoundException;
 
 import java.time.ZonedDateTime;
 
-@RestControllerAdvice(assignableTypes = {BankingController.class})
-public class BankingControllerExceptionHandler {
+@RestControllerAdvice(assignableTypes = {AccountController.class})
+public class AccountControllerExceptionHandler {
 
     @ExceptionHandler(value = AccountNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleAccountNotFound(AccountNotFoundException ex) {
