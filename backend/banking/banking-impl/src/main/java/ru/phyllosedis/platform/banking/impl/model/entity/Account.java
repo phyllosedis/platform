@@ -126,5 +126,11 @@ public class Account {
 
             this.accountNumber = typeCode + currencyCode + uniqueTail;
         }
+        if (this.amount == null) {
+            this.amount = BigDecimal.ZERO;
+        }
+        if (this.status == null) {
+            this.status = AccountStatus.ACTIVE;
+        }
     }
 }
