@@ -1,11 +1,11 @@
-package ru.phyllosedis.platform.app.controller.banking;
+package ru.phyllosedis.platform.app.controller.banking.account;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.phyllosedis.platform.banking.api.dto.AccountBalanceResponseDto;
-import ru.phyllosedis.platform.banking.api.dto.AccountCreateRequestDto;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountBalanceResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountCreateRequestDto;
 import ru.phyllosedis.platform.banking.api.service.AccountService;
 
 import java.util.UUID;

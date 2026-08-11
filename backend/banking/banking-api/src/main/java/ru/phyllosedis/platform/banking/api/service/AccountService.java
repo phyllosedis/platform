@@ -1,6 +1,6 @@
 package ru.phyllosedis.platform.banking.api.service;
 
-import ru.phyllosedis.platform.banking.api.dto.AccountBalanceResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountBalanceResponseDto;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
 

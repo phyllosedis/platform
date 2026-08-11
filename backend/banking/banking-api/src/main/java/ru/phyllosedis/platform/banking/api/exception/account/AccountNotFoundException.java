@@ -1,4 +1,4 @@
-package ru.phyllosedis.platform.banking.api.exception;
+package ru.phyllosedis.platform.banking.api.exception.account;
 
 
 import java.util.UUID;

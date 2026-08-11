@@ -1,9 +1,9 @@
-package ru.phyllosedis.platform.banking.api.dto;
+package ru.phyllosedis.platform.banking.api.dto.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
+import ru.phyllosedis.platform.banking.api.dto.Currency;
 
 import java.util.UUID;
 

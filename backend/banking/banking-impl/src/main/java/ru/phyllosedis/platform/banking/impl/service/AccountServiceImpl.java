@@ -2,11 +2,11 @@ package ru.phyllosedis.platform.banking.impl.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.phyllosedis.platform.banking.api.dto.AccountBalanceResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountBalanceResponseDto;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
-import ru.phyllosedis.platform.banking.api.exception.AccountNotFoundException;
-import ru.phyllosedis.platform.banking.api.exception.UserNotFoundException;
+import ru.phyllosedis.platform.banking.api.exception.account.AccountNotFoundException;
+import ru.phyllosedis.platform.banking.api.exception.user.UserNotFoundException;
 import ru.phyllosedis.platform.banking.api.service.AccountService;
 import ru.phyllosedis.platform.banking.impl.model.entity.Account;
 import ru.phyllosedis.platform.banking.impl.model.entity.User;
