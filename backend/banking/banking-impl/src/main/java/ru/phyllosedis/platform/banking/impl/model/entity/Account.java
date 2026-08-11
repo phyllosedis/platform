@@ -52,6 +52,10 @@ public class Account {
     @ToString.Exclude
     private Set<Transaction> toTransaction;
 
+    public Boolean isActive() {
+        return status.equals(AccountStatus.ACTIVE);
+    }
+
     /**
      * Автоматически генерирует уникальный 12-значный номер банковского счета перед сохранением в БД.
      * <p>
