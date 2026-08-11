@@ -2,8 +2,10 @@ package ru.phyllosedis.platform.banking.impl.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.phyllosedis.platform.banking.api.dto.account.AccountBalanceResponseDto;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountBalanceResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountExistsResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountStatus;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
 import ru.phyllosedis.platform.banking.api.exception.account.AccountNotFoundException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNotFoundException;
@@ -40,5 +42,27 @@ public class AccountServiceImpl implements AccountService {
                 .build();
         accountRepository.save(account);
         return account.getId();
+    }
+
+    @Override
+    public AccountExistsResponseDto existsById(UUID id) {
+        Optional<AccountExistsResponseDto> dto = accountRepository.existsByUUID(id);
+        return dto.orElseThrow(() -> new AccountNotFoundException(id));
+    }
+
+    @Override
+    public AccountExistsResponseDto existsByAccountNumber(String accountNumber) {
+        Optional<AccountExistsResponseDto> dto = accountRepository.existsByAccountNumber(accountNumber);
+        return dto.orElseThrow(() -> new AccountNotFoundException(accountNumber));
+    }
+
+    @Override
+    public AccountStatus getAccountStatus(UUID id) {
+        return accountRepository.getAccountStatus(id);
+    }
+
+    @Override
+    public AccountStatus getAccountStatus(String accountNumber) {
+        return accountRepository.getAccountStatus(accountNumber);
     }
 }

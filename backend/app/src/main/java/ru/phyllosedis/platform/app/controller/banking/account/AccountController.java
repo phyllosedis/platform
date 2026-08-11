@@ -30,4 +30,23 @@ public class AccountController {
         return accountService.getBalance(accountNumber);
     }
 
+    @GetMapping("/exists/byAccountNumber")
+    public AccountExistsResponseDto existsByAccountNumber(@RequestParam("accountNumber") String accountNumber) {
+        return accountService.existsByAccountNumber(accountNumber);
+    }
+
+    @GetMapping("/exists/byId")
+    public AccountExistsResponseDto existsByUUID(@RequestParam("id") UUID id) {
+        return accountService.existsById(id);
+    }
+
+    @GetMapping("/status/byId")
+    public AccountStatus getAccountStatus(@RequestParam("id") UUID id) {
+        return accountService.getAccountStatus(id);
+    }
+
+    @GetMapping("/status/byAccountNumber")
+    public AccountStatus getAccountStatus(@RequestParam("accountNumber") String accountNumber) {
+        return accountService.getAccountStatus(accountNumber);
+    }
 }
