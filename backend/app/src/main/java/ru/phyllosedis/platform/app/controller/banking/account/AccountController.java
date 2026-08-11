@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.phyllosedis.platform.banking.api.dto.account.AccountBalanceResponseDto;
-import ru.phyllosedis.platform.banking.api.dto.account.AccountCreateRequestDto;
+import ru.phyllosedis.platform.banking.api.dto.account.AccountStatus;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountBalanceResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountCreateRequestDto;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountExistsResponseDto;
 import ru.phyllosedis.platform.banking.api.service.AccountService;
 
 import java.util.UUID;

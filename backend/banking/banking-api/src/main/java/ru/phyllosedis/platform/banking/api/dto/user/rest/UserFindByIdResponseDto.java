@@ -1,4 +1,4 @@
-package ru.phyllosedis.platform.banking.api.dto.user;
+package ru.phyllosedis.platform.banking.api.dto.user.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

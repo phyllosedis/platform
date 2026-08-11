@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.phyllosedis.platform.banking.api.dto.user.UserFindByIdResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.user.rest.UserFindByIdResponseDto;
 import ru.phyllosedis.platform.banking.api.service.UserService;
 
 import java.util.UUID;

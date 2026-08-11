@@ -1,6 +1,6 @@
 package ru.phyllosedis.platform.banking.api.service;
 
-import ru.phyllosedis.platform.banking.api.dto.user.UserFindByIdResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.user.rest.UserFindByIdResponseDto;
 
 import java.util.UUID;
 

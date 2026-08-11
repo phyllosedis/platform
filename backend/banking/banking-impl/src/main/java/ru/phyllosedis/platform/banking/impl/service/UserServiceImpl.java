@@ -3,7 +3,7 @@ package ru.phyllosedis.platform.banking.impl.service;
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.phyllosedis.platform.banking.api.dto.user.UserFindByIdResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.user.rest.UserFindByIdResponseDto;
 import ru.phyllosedis.platform.banking.api.exception.user.UserIdCannotBeNullException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNameCannotBeNullException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNotFoundException;
