@@ -41,12 +41,14 @@ public class AccountController {
     }
 
     @GetMapping("/status/byId")
-    public AccountStatus getAccountStatus(@RequestParam("id") UUID id) {
-        return accountService.getAccountStatus(id);
+    public ResponseEntity<AccountStatus> getAccountStatus(@RequestParam("id") UUID id) {
+        AccountStatus accountStatus = accountService.getAccountStatus(id);
+        return new ResponseEntity<>(accountStatus, accountStatus == null ? HttpStatus.NOT_FOUND : HttpStatus.FOUND);
     }
 
     @GetMapping("/status/byAccountNumber")
-    public AccountStatus getAccountStatus(@RequestParam("accountNumber") String accountNumber) {
-        return accountService.getAccountStatus(accountNumber);
+    public ResponseEntity<AccountStatus> getAccountStatus(@RequestParam("accountNumber") String accountNumber) {
+        AccountStatus accountStatus = accountService.getAccountStatus(accountNumber);
+        return new ResponseEntity<>(accountStatus, accountStatus == null ? HttpStatus.NOT_FOUND : HttpStatus.FOUND);
     }
 }

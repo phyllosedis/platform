@@ -15,10 +15,10 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     Optional<Account> findByAccountNumber(String accountNumber);
 
     @Query(value = "select status from Account where id = :id")
-    AccountStatus getAccountStatus(UUID id);
+    Optional<AccountStatus> getAccountStatus(UUID id);
 
     @Query(value = "select status from Account where accountNumber = :accountNumber")
-    AccountStatus getAccountStatus(String accountNumber);
+    Optional<AccountStatus> getAccountStatus(String accountNumber);
 
     @Query(value = "select new ru.phyllosedis.platform.banking.api.dto.account.rest.AccountExistsResponseDto(id, accountNumber) from Account where accountNumber = :accountNumber")
     Optional<AccountExistsResponseDto> existsByAccountNumber(String accountNumber);

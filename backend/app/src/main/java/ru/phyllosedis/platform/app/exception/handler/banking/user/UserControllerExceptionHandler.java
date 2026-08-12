@@ -9,10 +9,11 @@ import ru.phyllosedis.platform.app.exception.handler.ErrorResponseDto;
 import ru.phyllosedis.platform.banking.api.exception.user.UserIdCannotBeNullException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNameCannotBeNullException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNotFoundException;
+import ru.phyllosedis.platform.banking.api.service.AccountService;
 
 import java.time.ZonedDateTime;
 
-@RestControllerAdvice(assignableTypes = {UserController.class})
+@RestControllerAdvice(assignableTypes = {UserController.class, AccountService.class})
 public class UserControllerExceptionHandler {
 
     @ExceptionHandler(value = UserNotFoundException.class)

@@ -3,10 +3,10 @@ package ru.phyllosedis.platform.banking.impl.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
-import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountBalanceResponseDto;
-import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountExistsResponseDto;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountStatus;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountBalanceResponseDto;
+import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountExistsResponseDto;
 import ru.phyllosedis.platform.banking.api.exception.account.AccountNotFoundException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNotFoundException;
 import ru.phyllosedis.platform.banking.api.service.AccountService;
@@ -58,11 +58,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountStatus getAccountStatus(UUID id) {
-        return accountRepository.getAccountStatus(id);
+        Optional<AccountStatus> accountStatus = accountRepository.getAccountStatus(id);
+        return accountStatus.orElse(null);
     }
 
     @Override
     public AccountStatus getAccountStatus(String accountNumber) {
-        return accountRepository.getAccountStatus(accountNumber);
+        Optional<AccountStatus> accountStatus = accountRepository.getAccountStatus(accountNumber);
+        return accountStatus.orElse(null);
     }
 }
