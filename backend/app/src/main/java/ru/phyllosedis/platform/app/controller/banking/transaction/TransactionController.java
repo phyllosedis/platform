@@ -20,12 +20,12 @@ public class TransactionController {
     @PostMapping("/transfer/byId")
     public TransactionTransferResponseDto transferById(@RequestBody TransactionTransferIdRequestDto dto) {
         // TODO временно фиксируемся на рублях для тестов
-        return transactionService.transferById(dto.getFrom(), dto.getTo(), dto.getAmount(), dto.getCurrency());
+        return transactionService.transferById(dto.getFrom(), dto.getTo(), dto.getAmount(), dto.getType(), dto.getCurrency());
     }
 
     @PostMapping("/transfer/byAccountNumber")
     public TransactionTransferResponseDto transferByAccountNumber(@RequestBody TransactionTransferAccountNumberRequestDto dto) {
         // TODO временно фиксируемся на рублях для тестов
-        return transactionService.transferByAccountNumber(dto.getFrom(), dto.getTo(), dto.getAmount(), dto.getCurrency());
+        return transactionService.transferByAccountNumber(dto.getFrom(), dto.getTo(), dto.getAmount(), dto.getType(), dto.getCurrency());
     }
 }

@@ -26,35 +26,69 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
 
+    private TransactionTransferResponseDto validate(Account from, Account to, BigDecimal amount, TransactionType type, Currency currency) {
 
-    private TransactionTransferResponseDto transfer(Account from, Account to, BigDecimal amount, Currency currency) {
-        // todo определиться с currency, проверяем счёта from и to на соответствие currency, иначе эксепшн
-        // чтобы статус аккаунта был активным
-        // чтобы аккаунт был с соответствующим currency. на первое время перевода валют из одного счёта в другой не будет доступно
-        // чтобы amount'а хватало для вычитания из accountFrom
+        TransactionTransferResponseDto.TransactionTransferResponseDtoBuilder ttrd = TransactionTransferResponseDto.builder();
+        ttrd.status(TransactionStatus.FAILED);
+
+        if (!from.isActive() || !to.isActive()) {
+            return ttrd
+                    .reason(TransactionFailedReason.ACCOUNT_NOT_ACTIVE)
+                    .description(TransactionFailedReason.ACCOUNT_NOT_ACTIVE.getDescription())
+                    .build();
+        }
+
+        if (from.equals(to)) {
+            return ttrd
+                    .reason(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT)
+                    .description(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT.getDescription())
+                    .build();
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            return ttrd
+                    .reason(TransactionFailedReason.AMOUNT_CANNOT_BE_BELOW_ZERO)
+                    .description(TransactionFailedReason.AMOUNT_CANNOT_BE_BELOW_ZERO.getDescription())
+                    .build();
+        }
+
+        if (!from.getCurrency().equals(currency) || !to.getCurrency().equals(currency)) {
+            return ttrd
+                    .reason(TransactionFailedReason.ACCOUNT_CURRENCY_NOT_SAME)
+                    .description(String.format("Счёт отправителя имеет валюту %s. Счёт получателя имеет валюту %s.", from.getCurrency(), to.getCurrency()))
+                    .build();
+        }
 
         if (!from.getType().equals(AccountType.SYSTEM_CB_EMISSION) && from.getAmount().compareTo(amount) < 0) {
-            return TransactionTransferResponseDto.builder()
-                    .status(TransactionStatus.FAILED)
+            return ttrd
                     .reason(TransactionFailedReason.NOT_ENOUGH_MONEY)
                     .description(String.format("На счёте %s:%s недостаточно средств", from.getId(), from.getAccountNumber()))
                     .build();
         }
 
-        if (!from.isActive() || !to.isActive()) {
-            return TransactionTransferResponseDto.builder()
-                    .status(TransactionStatus.FAILED)
-                    .reason(TransactionFailedReason.ACCOUNT_NOT_ACTIVE)
-                    .description("Счёт не активен")
-                    .build();
-        }
+        return new TransactionTransferResponseDto(TransactionStatus.PENDING, null, "");
+    }
 
-        Transaction tx = Transaction.builder()
+    private TransactionTransferResponseDto transfer(Account from, Account to, BigDecimal amount, TransactionType type, Currency currency) {
+        // todo определиться с currency, проверяем счёта from и to на соответствие currency, иначе эксепшн
+        // чтобы статус аккаунта был активным
+        // чтобы аккаунт был с соответствующим currency. на первое время перевода валют из одного счёта в другой не будет доступно
+        // чтобы amount'а хватало для вычитания из accountFrom
+
+        Transaction.TransactionBuilder txb = Transaction.builder()
                 .fromAccount(from)
                 .toAccount(to)
-                .status(TransactionStatus.PENDING)
                 .amount(amount)
-                .type(TransactionType.TRANSFER)
+                .type(type);
+
+        TransactionTransferResponseDto validated = validate(from, to, amount, type, currency);
+        if (validated.getStatus().equals(TransactionStatus.FAILED)) {
+            txb.status(TransactionStatus.FAILED);
+            transactionRepository.save(txb.build());
+            return validated;
+        }
+        Transaction tx = txb
+                .status(TransactionStatus.PENDING)
                 .build();
 
         transactionRepository.save(tx);
@@ -74,19 +108,19 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public TransactionTransferResponseDto transferById(UUID from, UUID to, BigDecimal amount, Currency currency) {
+    public TransactionTransferResponseDto transferById(UUID from, UUID to, BigDecimal amount, TransactionType type, Currency currency) {
         Account fromAccount = accountRepository.findById(from).orElseThrow(() -> new AccountNotFoundException(from));
         Account toAccount = accountRepository.findById(to).orElseThrow(() -> new AccountNotFoundException(to));
 
-        return transfer(fromAccount, toAccount, amount, currency);
+        return transfer(fromAccount, toAccount, amount, type, currency);
     }
 
     @Override
     @Transactional
-    public TransactionTransferResponseDto transferByAccountNumber(String from, String to, BigDecimal amount, Currency currency) {
+    public TransactionTransferResponseDto transferByAccountNumber(String from, String to, BigDecimal amount, TransactionType type, Currency currency) {
         Account fromAccount = accountRepository.findByAccountNumber(from).orElseThrow(() -> new AccountNotFoundException(from));
         Account toAccount = accountRepository.findByAccountNumber(to).orElseThrow(() -> new AccountNotFoundException(to));
 
-        return transfer(fromAccount, toAccount, amount, currency);
+        return transfer(fromAccount, toAccount, amount, type, currency);
     }
 }
