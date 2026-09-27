@@ -1,13 +1,13 @@
+**/target*
 **/.classpath
 **/.factorypath
 **/.project
 **/.settings/*
 *.iml
 **/.idea/*.xml
-**/target*
 **/.idea/*
 *.http
 *.kts
 *.json
-!**/*-template.env
 **/*.env
+!**/*-template.env
