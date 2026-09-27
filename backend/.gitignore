@@ -4,6 +4,8 @@
 **/.settings/*
 *.iml
 **/.idea/*.xml
+**/target*
+**/.idea/*
 *.http
 *.kts
 *.json
