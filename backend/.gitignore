@@ -1,0 +1,11 @@
+**/.classpath
+**/.factorypath
+**/.project
+**/.settings/*
+*.iml
+**/.idea/*.xml
+*.http
+*.kts
+*.json
+!**/*-template.env
+**/*.env
