@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: platform-postgres
+    env_file:
+      - ./env/platform-postgres-template.env
+      - ./env/platform-postgres.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./infra/init-scripts:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: platform-backend
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    env_file:
+      - ./env/platform-postgres-template.env
+      - ./env/platform-postgres.env
+      - ./env/platform-messenger-template.env
+      - ./env/platform-messenger.env
+      - ./env/platform-social-template.env
+      - ./env/platform-social.env
+      - ./env/platform-banking-template.env
+      - ./env/platform-banking.env
+    networks:
+      - app-network
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+volumes:
+  pg_data:
+
+networks:
+  app-network:
+    driver: bridge
