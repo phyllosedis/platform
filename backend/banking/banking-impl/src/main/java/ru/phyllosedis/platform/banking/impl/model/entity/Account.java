@@ -2,16 +2,20 @@ package ru.phyllosedis.platform.banking.impl.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountStatus;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountType;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +28,7 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
     private User user;
 
     @Column(name = "account_number", nullable = false, unique = true, length = 20)
@@ -52,6 +57,10 @@ public class Account {
     @ToString.Exclude
     private Set<Transaction> toTransaction;
 
+    public Boolean isActive() {
+        return status.equals(AccountStatus.ACTIVE);
+    }
+
     /**
      * Автоматически генерирует уникальный 12-значный номер банковского счета перед сохранением в БД.
      * <p>
@@ -76,7 +85,7 @@ public class Account {
      *       403 &mdash; Магазины (Мерчанты)<br>
      *       408 &mdash; Физические лица
      *     </td>
-     *     <td>Определяется на основе {@link ru.phyllosedis.platform.banking.api.dto.account.AccountType}</td>
+     *     <td>Определяется на основе {@link AccountType}</td>
      *   </tr>
      *   <tr>
      *     <td><b>4 &ndash; 6</b></td>
@@ -87,7 +96,7 @@ public class Account {
      *       978 &mdash; EUR<br>
      *       156 &mdash; CNY
      *     </td>
-     *     <td>Определяется на основе {@link ru.phyllosedis.platform.banking.api.dto.Currency}</td>
+     *     <td>Определяется на основе {@link Currency}</td>
      *   </tr>
      *   <tr>
      *     <td><b>7 &ndash; 12</b></td>
@@ -126,5 +135,33 @@ public class Account {
 
             this.accountNumber = typeCode + currencyCode + uniqueTail;
         }
+        if (this.amount == null) {
+            this.amount = BigDecimal.ZERO;
+        }
+        if (this.status == null) {
+            this.status = AccountStatus.ACTIVE;
+        }
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        Class<?> objectEffectiveClass = o instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != objectEffectiveClass) {
+            return false;
+        }
+        Account account = (Account) o;
+        return getId() != null && Objects.equals(getId(), account.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }
