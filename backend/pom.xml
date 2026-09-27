@@ -31,6 +31,7 @@
         <module>social/social-api</module>
         <module>social/social-impl</module>
         <module>app</module>
+        <module>auth</module>
     </modules>
 
     <dependencyManagement>
