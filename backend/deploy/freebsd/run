@@ -1,0 +1,10 @@
+#!/bin/sh
+
+touch /var/log/platform.log
+chown default:default /var/log/platform.log
+
+cp deploy/freebsd/platform /usr/local/etc/rc.d/platform
+chmod +x /usr/local/etc/rc.d/platform
+
+sysrc platform_enable="YES"
+service platform start
