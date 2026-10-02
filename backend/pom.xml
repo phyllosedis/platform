@@ -30,8 +30,9 @@
         <module>messenger/messenger-impl</module>
         <module>social/social-api</module>
         <module>social/social-impl</module>
+        <module>auth/auth-impl</module>
+        <module>auth/auth-api</module>
         <module>app</module>
-        <module>auth</module>
     </modules>
 
     <dependencyManagement>
@@ -62,6 +63,12 @@
 
             <dependency>
                 <groupId>ru.phyllosedis</groupId>
+                <artifactId>auth-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
                 <artifactId>banking-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -75,6 +82,12 @@
             <dependency>
                 <groupId>ru.phyllosedis</groupId>
                 <artifactId>messenger-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>auth-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
