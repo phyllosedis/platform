@@ -1,8 +1,6 @@
 package ru.phyllosedis.platform.banking.impl.service;
 
-import jakarta.persistence.LockModeType;
 import lombok.AllArgsConstructor;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.phyllosedis.platform.banking.api.dto.Currency;
@@ -40,14 +38,14 @@ public class TransactionServiceImpl implements TransactionService {
                     .build();
         }
 
-        if (from.equals(to)) {
+        if (from.getId() != null && from.getId().equals(to.getId())) {
             return ttrd
                     .reason(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT)
                     .description(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT.getDescription())
                     .build();
         }
 
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             return ttrd
                     .reason(TransactionFailedReason.AMOUNT_CANNOT_BE_BELOW_ZERO)
                     .description(TransactionFailedReason.AMOUNT_CANNOT_BE_BELOW_ZERO.getDescription())
@@ -109,21 +107,54 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    @Transactional("bankingTransactionManager")
     public TransactionTransferResponseDto transferById(UUID from, UUID to, BigDecimal amount, TransactionType type, Currency currency) {
-        Account fromAccount = accountRepository.findById(from).orElseThrow(() -> new AccountNotFoundException(from));
-        Account toAccount = accountRepository.findById(to).orElseThrow(() -> new AccountNotFoundException(to));
+        if (from.equals(to)) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT)
+                    .description(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT.getDescription())
+                    .build();
+        }
+
+        // Фиксированный порядок блокировки по UUID — защита от deadlock
+        // при встречных переводах A->B и B->A.
+        UUID firstId = from.compareTo(to) < 0 ? from : to;
+        UUID secondId = from.compareTo(to) < 0 ? to : from;
+
+        Account first = accountRepository.findByIdForUpdate(firstId)
+                .orElseThrow(() -> new AccountNotFoundException(firstId));
+        Account second = accountRepository.findByIdForUpdate(secondId)
+                .orElseThrow(() -> new AccountNotFoundException(secondId));
+
+        Account fromAccount = first.getId().equals(from) ? first : second;
+        Account toAccount = first.getId().equals(from) ? second : first;
 
         return transfer(fromAccount, toAccount, amount, type, currency);
     }
 
     @Override
-    @Transactional
-    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    @Transactional("bankingTransactionManager")
     public TransactionTransferResponseDto transferByAccountNumber(String from, String to, BigDecimal amount, TransactionType type, Currency currency) {
-        Account fromAccount = accountRepository.findByAccountNumber(from).orElseThrow(() -> new AccountNotFoundException(from));
-        Account toAccount = accountRepository.findByAccountNumber(to).orElseThrow(() -> new AccountNotFoundException(to));
+        if (from.equals(to)) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT)
+                    .description(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT.getDescription())
+                    .build();
+        }
+
+        // Фиксированный порядок блокировки по номеру счёта — защита от deadlock.
+        String firstNumber = from.compareTo(to) < 0 ? from : to;
+        String secondNumber = from.compareTo(to) < 0 ? to : from;
+
+        Account first = accountRepository.findByAccountNumberForUpdate(firstNumber)
+                .orElseThrow(() -> new AccountNotFoundException(firstNumber));
+        Account second = accountRepository.findByAccountNumberForUpdate(secondNumber)
+                .orElseThrow(() -> new AccountNotFoundException(secondNumber));
+
+        Account fromAccount = first.getAccountNumber().equals(from) ? first : second;
+        Account toAccount = first.getAccountNumber().equals(from) ? second : first;
 
         return transfer(fromAccount, toAccount, amount, type, currency);
     }

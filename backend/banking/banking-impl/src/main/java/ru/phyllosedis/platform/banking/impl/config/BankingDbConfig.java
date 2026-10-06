@@ -44,27 +44,30 @@ public class BankingDbConfig {
         return new HashMap<>();
     }
 
-    @Bean
-    public LocalContainerEntityManagerFactoryBean bankingEntityManagerFactory(EntityManagerFactoryBuilder builder) {
-        Map<String, Object> properties = new HashMap<>(bankingJpaProperties());
+    @Bean(name = "bankingEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean bankingEntityManagerFactory(
+            EntityManagerFactoryBuilder builder,
+            @Qualifier("bankingDataSource") DataSource bankingDataSource,
+            @Qualifier("bankingJpaProperties") Map<String, String> bankingJpaProps) {
+        Map<String, Object> properties = new HashMap<>(bankingJpaProps);
         return builder
-                .dataSource(bankingDataSource())
+                .dataSource(bankingDataSource)
                 .packages("ru.phyllosedis.platform.banking.impl.model.entity")
                 .persistenceUnit("banking")
                 .properties(properties)
                 .build();
     }
 
-    @Bean
+    @Bean(name = "bankingTransactionManager")
     public TransactionManager bankingTransactionManager(@Qualifier("bankingEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
-    @Bean
-    public SpringLiquibase bankingLiquibase() {
+    @Bean(name = "bankingLiquibase")
+    public SpringLiquibase bankingLiquibase(@Qualifier("bankingDataSource") DataSource bankingDataSource) {
         SpringLiquibase liquibase = new SpringLiquibase();
-        liquibase.setDataSource(bankingDataSource());
-        liquibase.setChangeLog("migrate/liquibase.changelog.xml");
+        liquibase.setDataSource(bankingDataSource);
+        liquibase.setChangeLog("classpath:db/banking/changelog.xml");
         return liquibase;
     }
 }

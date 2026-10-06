@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# PROVIDE: platform
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="platform"
+rcvar="platform_enable"
+
+platform_user="default"
+platform_dir="/home/default/app/app/target"
+platform_jar="${platform_dir}/app.jar"
+platform_log="/var/log/platform.log"
+
+start_cmd="platform_start"
+
+platform_start() {
+    echo "Starting modular monolith..."
+    cd ${platform_dir}
+
+    # export
+    if [ -d "${platform_dir}/env" ]; then
+        for env_file in ${platform_dir}/env/*.env; do
+            if [ -f "$env_file" ]; then
+                export $(xargs < "$env_file")
+            fi
+        done
+    fi
+
+    # background task executor
+    /usr/sbin/daemon -f -u ${platform_user} -p /var/run/${name}.pid -o ${platform_log} \
+        /usr/local/openjdk21/bin/java -jar ${platform_jar}
+
+}
+
+run_rc_command "$1"

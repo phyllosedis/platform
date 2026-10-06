@@ -20,7 +20,6 @@
 
     <properties>
         <java.version>21</java.version>
-        <apache-age.version>1.6.0</apache-age.version>
     </properties>
 
     <modules>
@@ -30,17 +29,13 @@
         <module>messenger/messenger-impl</module>
         <module>social/social-api</module>
         <module>social/social-impl</module>
+        <module>auth/auth-impl</module>
+        <module>auth/auth-api</module>
         <module>app</module>
-        <module>auth</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.apache.age</groupId>
-                <artifactId>age-jdbc</artifactId>
-                <version>${apache-age.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>ru.phyllosedis</groupId>
@@ -57,6 +52,12 @@
             <dependency>
                 <groupId>ru.phyllosedis</groupId>
                 <artifactId>messenger-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>auth-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -79,15 +80,15 @@
             </dependency>
 
             <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.7.5</version>
+                <groupId>ru.phyllosedis</groupId>
+                <artifactId>auth-impl</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-jpa</artifactId>
-                <version>3.4.13</version>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.7.5</version>
             </dependency>
 
             <dependency>
