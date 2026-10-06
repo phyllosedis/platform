@@ -5,10 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.phyllosedis.platform.banking.api.dto.Currency;
 import ru.phyllosedis.platform.banking.api.dto.account.rest.AccountExistsResponseDto;
 import ru.phyllosedis.platform.banking.api.dto.account.AccountStatus;
 import ru.phyllosedis.platform.banking.impl.model.entity.Account;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +25,9 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from Account a where a.accountNumber = :accountNumber")
     Optional<Account> findByAccountNumberForUpdate(String accountNumber);
+
+    @Query("select a from Account a where a.user.id = :userId and a.currency = :currency")
+    List<Account> findByUserIdAndCurrency(UUID userId, Currency currency);
 
     @Query(value = "select status from Account where id = :id")
     Optional<AccountStatus> getAccountStatus(UUID id);

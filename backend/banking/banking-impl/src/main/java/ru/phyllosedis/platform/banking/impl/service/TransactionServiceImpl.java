@@ -17,6 +17,7 @@ import ru.phyllosedis.platform.banking.impl.repository.AccountRepository;
 import ru.phyllosedis.platform.banking.impl.repository.TransactionRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -157,5 +158,28 @@ public class TransactionServiceImpl implements TransactionService {
         Account toAccount = first.getAccountNumber().equals(from) ? second : first;
 
         return transfer(fromAccount, toAccount, amount, type, currency);
+    }
+
+    @Override
+    @Transactional("bankingTransactionManager")
+    public TransactionTransferResponseDto transferFromUserByCurrency(UUID fromUserId, UUID to, BigDecimal amount, TransactionType type, Currency currency) {
+        // Подбор счёта без блокировки; сам перевод ниже идет через transferById,
+        // который перечитывает оба счёта под PESSIMISTIC_WRITE и там же валидирует.
+        List<Account> candidates = accountRepository.findByUserIdAndCurrency(fromUserId, currency);
+        if (candidates.isEmpty()) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.SENDER_HAS_NO_ACCOUNT_IN_CURRENCY)
+                    .description(TransactionFailedReason.SENDER_HAS_NO_ACCOUNT_IN_CURRENCY.getDescription())
+                    .build();
+        }
+        if (candidates.size() > 1) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.SENDER_HAS_MULTIPLE_ACCOUNTS_IN_CURRENCY)
+                    .description(TransactionFailedReason.SENDER_HAS_MULTIPLE_ACCOUNTS_IN_CURRENCY.getDescription())
+                    .build();
+        }
+        return transferById(candidates.get(0).getId(), to, amount, type, currency);
     }
 }

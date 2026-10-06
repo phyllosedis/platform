@@ -20,6 +20,7 @@ import ru.phyllosedis.platform.banking.impl.repository.AccountRepository;
 import ru.phyllosedis.platform.banking.impl.repository.TransactionRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -250,5 +251,58 @@ class TransactionServiceImplTest {
         assertThat(result.getStatus()).isEqualTo(TransactionStatus.FAILED);
         assertThat(result.getReason()).isEqualTo(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT);
         verifyNoInteractions(accountRepository, transactionRepository);
+    }
+
+    @Test
+    void fromUserByCurrencySuccess() {
+        UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000009");
+        Account from = account(UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                "408810000001", Currency.RUB, new BigDecimal("500.00"), AccountStatus.ACTIVE, AccountType.INDIVIDUAL);
+        Account to = account(UUID.fromString("00000000-0000-0000-0000-000000000002"),
+                "408810000002", Currency.RUB, new BigDecimal("0.00"), AccountStatus.ACTIVE, AccountType.INDIVIDUAL);
+        when(accountRepository.findByUserIdAndCurrency(userId, Currency.RUB)).thenReturn(List.of(from));
+        stubLock(from, to);
+        stubSaveThrough();
+
+        TransactionTransferResponseDto result = service.transferFromUserByCurrency(
+                userId, to.getId(), new BigDecimal("200.00"), TransactionType.TRANSFER, Currency.RUB);
+
+        assertThat(result.getStatus()).isEqualTo(TransactionStatus.COMPLETE);
+        assertThat(from.getAmount()).isEqualByComparingTo(new BigDecimal("300.00"));
+        assertThat(to.getAmount()).isEqualByComparingTo(new BigDecimal("200.00"));
+    }
+
+    @Test
+    void fromUserByCurrencyFailsWithoutAccount() {
+        UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000009");
+        UUID toId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        when(accountRepository.findByUserIdAndCurrency(userId, Currency.USD)).thenReturn(List.of());
+
+        TransactionTransferResponseDto result = service.transferFromUserByCurrency(
+                userId, toId, new BigDecimal("10.00"), TransactionType.TRANSFER, Currency.USD);
+
+        assertThat(result.getStatus()).isEqualTo(TransactionStatus.FAILED);
+        assertThat(result.getReason()).isEqualTo(TransactionFailedReason.SENDER_HAS_NO_ACCOUNT_IN_CURRENCY);
+        verifyNoInteractions(transactionRepository);
+        verify(accountRepository, never()).save(any());
+    }
+
+    @Test
+    void fromUserByCurrencyFailsOnAmbiguity() {
+        UUID userId = UUID.fromString("00000000-0000-0000-0000-000000000009");
+        UUID toId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        Account first = account(UUID.fromString("00000000-0000-0000-0000-000000000003"),
+                "408810000003", Currency.RUB, new BigDecimal("500.00"), AccountStatus.ACTIVE, AccountType.INDIVIDUAL);
+        Account second = account(UUID.fromString("00000000-0000-0000-0000-000000000004"),
+                "408810000004", Currency.RUB, new BigDecimal("500.00"), AccountStatus.ACTIVE, AccountType.INDIVIDUAL);
+        when(accountRepository.findByUserIdAndCurrency(userId, Currency.RUB))
+                .thenReturn(List.of(first, second));
+
+        TransactionTransferResponseDto result = service.transferFromUserByCurrency(
+                userId, toId, new BigDecimal("10.00"), TransactionType.TRANSFER, Currency.RUB);
+
+        assertThat(result.getStatus()).isEqualTo(TransactionStatus.FAILED);
+        assertThat(result.getReason()).isEqualTo(TransactionFailedReason.SENDER_HAS_MULTIPLE_ACCOUNTS_IN_CURRENCY);
+        verifyNoInteractions(transactionRepository);
     }
 }
