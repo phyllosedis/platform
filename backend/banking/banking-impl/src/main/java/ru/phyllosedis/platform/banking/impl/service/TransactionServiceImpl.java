@@ -12,11 +12,16 @@ import ru.phyllosedis.platform.banking.api.dto.transaction.rest.TransactionTrans
 import ru.phyllosedis.platform.banking.api.exception.account.AccountNotFoundException;
 import ru.phyllosedis.platform.banking.api.service.TransactionService;
 import ru.phyllosedis.platform.banking.impl.model.entity.Account;
+import ru.phyllosedis.platform.banking.impl.model.entity.ExchangeRate;
 import ru.phyllosedis.platform.banking.impl.model.entity.Transaction;
 import ru.phyllosedis.platform.banking.impl.repository.AccountRepository;
+import ru.phyllosedis.platform.banking.impl.repository.ExchangeRateRepository;
 import ru.phyllosedis.platform.banking.impl.repository.TransactionRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,6 +30,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final ExchangeRateRepository exchangeRateRepository;
 
     private TransactionTransferResponseDto validate(Account from, Account to, BigDecimal amount, TransactionType type, Currency currency) {
 
@@ -88,6 +94,8 @@ public class TransactionServiceImpl implements TransactionService {
             return validated;
         }
         Transaction tx = txb
+                .convertedAmount(amount)
+                .rateUsed(BigDecimal.ONE)
                 .status(TransactionStatus.PENDING)
                 .build();
 
@@ -157,5 +165,130 @@ public class TransactionServiceImpl implements TransactionService {
         Account toAccount = first.getAccountNumber().equals(from) ? second : first;
 
         return transfer(fromAccount, toAccount, amount, type, currency);
+    }
+
+    @Override
+    @Transactional("bankingTransactionManager")
+    public TransactionTransferResponseDto transferFromUserByCurrency(UUID fromUserId, UUID to, BigDecimal amount, TransactionType type, Currency currency) {
+        // Подбор счёта без блокировки; сам перевод ниже идет через transferById,
+        // который перечитывает оба счёта под PESSIMISTIC_WRITE и там же валидирует.
+        List<Account> candidates = accountRepository.findByUserIdAndCurrency(fromUserId, currency);
+        if (candidates.isEmpty()) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.SENDER_HAS_NO_ACCOUNT_IN_CURRENCY)
+                    .description(TransactionFailedReason.SENDER_HAS_NO_ACCOUNT_IN_CURRENCY.getDescription())
+                    .build();
+        }
+        if (candidates.size() > 1) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.SENDER_HAS_MULTIPLE_ACCOUNTS_IN_CURRENCY)
+                    .description(TransactionFailedReason.SENDER_HAS_MULTIPLE_ACCOUNTS_IN_CURRENCY.getDescription())
+                    .build();
+        }
+        return transferById(candidates.get(0).getId(), to, amount, type, currency);
+    }
+
+    private Optional<BigDecimal> resolveRate(Currency from, Currency to) {
+        if (from.equals(to)) {
+            return Optional.of(BigDecimal.ONE);
+        }
+        Optional<ExchangeRate> direct = exchangeRateRepository.findByBaseCurrencyAndQuoteCurrency(from, to);
+        if (direct.isPresent()) {
+            return Optional.of(direct.get().getRate());
+        }
+        return exchangeRateRepository.findByBaseCurrencyAndQuoteCurrency(to, from)
+                .map(inverse -> BigDecimal.ONE.divide(inverse.getRate(), 8, RoundingMode.HALF_EVEN));
+    }
+
+    private TransactionTransferResponseDto transferConverting(Account from, Account to, BigDecimal amount, TransactionType type) {
+        TransactionTransferResponseDto.TransactionTransferResponseDtoBuilder failed =
+                TransactionTransferResponseDto.builder().status(TransactionStatus.FAILED);
+
+        if (!from.isActive() || !to.isActive()) {
+            return failed
+                    .reason(TransactionFailedReason.ACCOUNT_NOT_ACTIVE)
+                    .description(TransactionFailedReason.ACCOUNT_NOT_ACTIVE.getDescription())
+                    .build();
+        }
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return failed
+                    .reason(TransactionFailedReason.AMOUNT_CANNOT_BE_BELOW_ZERO)
+                    .description(TransactionFailedReason.AMOUNT_CANNOT_BE_BELOW_ZERO.getDescription())
+                    .build();
+        }
+
+        if (!from.getType().equals(AccountType.SYSTEM_CB_EMISSION) && from.getAmount().compareTo(amount) < 0) {
+            return failed
+                    .reason(TransactionFailedReason.NOT_ENOUGH_MONEY)
+                    .description(String.format("На счёте %s:%s недостаточно средств", from.getId(), from.getAccountNumber()))
+                    .build();
+        }
+
+        Optional<BigDecimal> rate = resolveRate(from.getCurrency(), to.getCurrency());
+        if (rate.isEmpty()) {
+            Transaction failedTx = Transaction.builder()
+                    .fromAccount(from)
+                    .toAccount(to)
+                    .amount(amount)
+                    .type(type)
+                    .status(TransactionStatus.FAILED)
+                    .build();
+            transactionRepository.save(failedTx);
+            return failed
+                    .reason(TransactionFailedReason.NO_EXCHANGE_RATE)
+                    .description(String.format("Нет курса %s->%s", from.getCurrency(), to.getCurrency()))
+                    .build();
+        }
+
+        BigDecimal converted = amount.multiply(rate.get()).setScale(2, RoundingMode.HALF_EVEN);
+        Transaction tx = Transaction.builder()
+                .fromAccount(from)
+                .toAccount(to)
+                .amount(amount)
+                .convertedAmount(converted)
+                .rateUsed(rate.get())
+                .type(type)
+                .status(TransactionStatus.PENDING)
+                .build();
+        transactionRepository.save(tx);
+
+        from.setAmount(from.getAmount().subtract(amount));
+        to.setAmount(to.getAmount().add(converted));
+        accountRepository.save(from);
+        accountRepository.save(to);
+
+        tx.setStatus(TransactionStatus.COMPLETE);
+        transactionRepository.save(tx);
+
+        return new TransactionTransferResponseDto(tx.getStatus(), null, "");
+    }
+
+    @Override
+    @Transactional("bankingTransactionManager")
+    public TransactionTransferResponseDto transferWithConversion(UUID from, UUID to, BigDecimal amount, TransactionType type) {
+        if (from.equals(to)) {
+            return TransactionTransferResponseDto.builder()
+                    .status(TransactionStatus.FAILED)
+                    .reason(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT)
+                    .description(TransactionFailedReason.CANNOT_TRANSFER_ON_THE_SAME_ACCOUNT.getDescription())
+                    .build();
+        }
+
+        // Тот же фиксированный порядок блокировки, что и в transferById.
+        UUID firstId = from.compareTo(to) < 0 ? from : to;
+        UUID secondId = from.compareTo(to) < 0 ? to : from;
+
+        Account first = accountRepository.findByIdForUpdate(firstId)
+                .orElseThrow(() -> new AccountNotFoundException(firstId));
+        Account second = accountRepository.findByIdForUpdate(secondId)
+                .orElseThrow(() -> new AccountNotFoundException(secondId));
+
+        Account fromAccount = first.getId().equals(from) ? first : second;
+        Account toAccount = first.getId().equals(from) ? second : first;
+
+        return transferConverting(fromAccount, toAccount, amount, type);
     }
 }

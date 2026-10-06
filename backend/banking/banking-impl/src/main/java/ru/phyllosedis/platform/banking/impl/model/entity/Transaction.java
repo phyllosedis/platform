@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "\"transaction\"")
+@Table(name = "\"transactions\"")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -44,6 +44,12 @@ public class Transaction {
 
     @Column(name = "amount", precision = 20, scale = 2, nullable = false)
     private BigDecimal amount;
+
+    @Column(name = "converted_amount", precision = 20, scale = 2)
+    private BigDecimal convertedAmount;
+
+    @Column(name = "rate_used", precision = 20, scale = 8)
+    private BigDecimal rateUsed;
 
     @PrePersist
     public void prePersist() {
