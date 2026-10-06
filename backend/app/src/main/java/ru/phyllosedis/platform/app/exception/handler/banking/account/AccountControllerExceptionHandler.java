@@ -5,13 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.phyllosedis.platform.app.controller.banking.account.AccountController;
+import ru.phyllosedis.platform.app.controller.banking.transaction.TransactionController;
 import ru.phyllosedis.platform.app.exception.handler.ErrorResponseDto;
 import ru.phyllosedis.platform.banking.api.exception.account.AccountNotFoundException;
-import ru.phyllosedis.platform.banking.api.service.TransactionService;
 
 import java.time.ZonedDateTime;
 
-@RestControllerAdvice(assignableTypes = {AccountController.class, TransactionService.class})
+@RestControllerAdvice(assignableTypes = {AccountController.class, TransactionController.class})
 public class AccountControllerExceptionHandler {
 
     @ExceptionHandler(value = AccountNotFoundException.class)
