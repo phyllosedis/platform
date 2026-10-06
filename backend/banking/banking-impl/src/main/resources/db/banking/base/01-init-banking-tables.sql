@@ -1,6 +1,8 @@
 
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 create table users (
-    id uuid not NULL,
+    id uuid PRIMARY KEY,
     name varchar(30) not null
 );
 

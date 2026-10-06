@@ -67,7 +67,7 @@ public class BankingDbConfig {
     public SpringLiquibase bankingLiquibase(@Qualifier("bankingDataSource") DataSource bankingDataSource) {
         SpringLiquibase liquibase = new SpringLiquibase();
         liquibase.setDataSource(bankingDataSource);
-        liquibase.setChangeLog("classpath:migrate/liquibase.changelog.xml");
+        liquibase.setChangeLog("classpath:db/banking/changelog.xml");
         return liquibase;
     }
 }
