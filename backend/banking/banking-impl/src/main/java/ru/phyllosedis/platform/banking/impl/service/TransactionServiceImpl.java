@@ -109,7 +109,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    @Transactional
+    @Transactional("bankingTransactionManager")
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     public TransactionTransferResponseDto transferById(UUID from, UUID to, BigDecimal amount, TransactionType type, Currency currency) {
         Account fromAccount = accountRepository.findById(from).orElseThrow(() -> new AccountNotFoundException(from));
@@ -119,7 +119,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    @Transactional
+    @Transactional("bankingTransactionManager")
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     public TransactionTransferResponseDto transferByAccountNumber(String from, String to, BigDecimal amount, TransactionType type, Currency currency) {
         Account fromAccount = accountRepository.findByAccountNumber(from).orElseThrow(() -> new AccountNotFoundException(from));
