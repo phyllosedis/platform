@@ -18,4 +18,11 @@ public interface TransactionService {
      * с упорядоченными блокировками.
      */
     TransactionTransferResponseDto transferFromUserByCurrency(UUID fromUserId, UUID toAccount, BigDecimal amount, TransactionType type, Currency currency);
+
+    /**
+     * Перевод с конвертацией: валюты счетов могут различаться.
+     * Курс берется из прейскуранта (прямая пара или инверсия),
+     * результат округляется до копеек/центов (HALF_EVEN).
+     */
+    TransactionTransferResponseDto transferWithConversion(UUID fromAccount, UUID toAccount, BigDecimal amount, TransactionType type);
 }

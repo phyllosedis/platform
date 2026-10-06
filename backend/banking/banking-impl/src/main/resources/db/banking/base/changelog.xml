@@ -11,4 +11,16 @@
         <sqlFile relativeToChangelogFile="true" path="02-initial-data.sql"/>
     </changeSet>
 
+    <changeSet id="03" author="phyllosedis">
+        <sqlFile relativeToChangelogFile="true" path="03-exchange-rate.sql"/>
+    </changeSet>
+
+    <changeSet id="04" author="phyllosedis">
+        <sqlFile relativeToChangelogFile="true" path="04-initial-rates.sql"/>
+    </changeSet>
+
+    <changeSet id="05" author="phyllosedis">
+        <sqlFile relativeToChangelogFile="true" path="05-transaction-conversion-audit.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

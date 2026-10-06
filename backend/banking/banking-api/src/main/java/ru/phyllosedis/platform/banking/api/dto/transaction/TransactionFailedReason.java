@@ -13,6 +13,7 @@ public enum TransactionFailedReason {
     ACCOUNT_CURRENCY_NOT_SAME("Денежная единица счёта не совпадает с д.е. у получателя"),
     SENDER_HAS_NO_ACCOUNT_IN_CURRENCY("У отправителя нет счёта в валюте перевода"),
     SENDER_HAS_MULTIPLE_ACCOUNTS_IN_CURRENCY("У отправителя несколько счетов в валюте перевода, укажите счёт явно"),
+    NO_EXCHANGE_RATE("Нет курса для конвертации между валютами счетов"),
     ;
 
     private final String description;
