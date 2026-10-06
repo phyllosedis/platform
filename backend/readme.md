@@ -33,3 +33,26 @@ backend/
 mvn clean package -DskipTests
 ```
 Готовый исполняемый Fat-JAR будет находиться в папке `app/target/`.
+
+## Среды запуска
+
+Каноническая среда — **docker-compose в WSL**: `platform-postgres`
+(PostgreSQL 16) + `platform-backend`. Пересборка после изменений:
+```bash
+docker compose up --build -d backend
+```
+Проверка: `curl http://localhost:8080/actuator/health` (изнутри WSL).
+
+Локальный запуск (`java -jar` на Windows) ходит в Postgres на
+`localhost:5432` и требует поднятого локального сервера. Служба
+`postgresql-x64-17` нестабильна — рабочий вариант:
+```powershell
+& 'C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe' start -D 'C:\Program Files\PostgreSQL\17\data'
+```
+Остановка после работы:
+```powershell
+& 'C:\Program Files\PostgreSQL\17\bin\pg_ctl.exe' stop -D 'C:\Program Files\PostgreSQL\17\data'
+```
+Важно: WSL-форвардинг порта 5432 на Windows нестабилен, поэтому локальный
+запуск и докерный стек видят **разные** базы. Не запускать оба одновременно
+при сомнениях, куда уходят данные.
