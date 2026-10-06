@@ -51,3 +51,16 @@ p95 < 800мс.
 
 Дальше: кастомный счетчик исходов переводов (`transfer.outcome{status,reason}`)
 и дашборд Grafana.
+
+## 4. Grafana (графики)
+
+```powershell
+wsl docker compose -f /mnt/c/Users/aleksey/OpenIDEProjects/platform/backend/docker-compose.yml up -d prometheus grafana
+```
+
+- Grafana: `http://<wsl-ip>:3000` (логин `admin` / `admin`), дашборд
+  `Platform` в папке `Platform` уже подключен к Prometheus.
+- Prometheus: `http://<wsl-ip>:9090`, таргет `platform` должен быть UP.
+- Панели: RPS и p95 по эндпоинтам, счетчик переводов, heap JVM,
+  активные коннекты Hikari.
+- IP узнавать через `wsl hostname -I` (localhost-релей Windows↔WSL шалит).
