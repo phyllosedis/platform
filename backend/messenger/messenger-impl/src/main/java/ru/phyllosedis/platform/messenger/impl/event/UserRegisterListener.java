@@ -13,7 +13,7 @@ import ru.phyllosedis.platform.messenger.impl.repository.MemberProfileRepository
  * доменный профиль мессенджера. В микросервисах сюда приедет Kafka,
  * логика не поменяется.
  */
-@Component
+@Component("messengerUserRegisterListener")
 @RequiredArgsConstructor
 public class UserRegisterListener {
 

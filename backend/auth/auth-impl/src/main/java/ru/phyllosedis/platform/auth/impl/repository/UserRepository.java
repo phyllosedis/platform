@@ -6,6 +6,6 @@ import ru.phyllosedis.platform.auth.impl.model.entity.User;
 
 import java.util.UUID;
 
-@Repository
+@Repository("authUserRepository")
 public interface UserRepository extends JpaRepository<User, UUID> {
 }

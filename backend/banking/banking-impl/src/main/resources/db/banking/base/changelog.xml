@@ -23,4 +23,8 @@
         <sqlFile relativeToChangelogFile="true" path="05-transaction-conversion-audit.sql"/>
     </changeSet>
 
+    <changeSet id="06" author="phyllosedis">
+        <sqlFile relativeToChangelogFile="true" path="06-demo-seed.sql"/>
+    </changeSet>
+
 </databaseChangeLog>
