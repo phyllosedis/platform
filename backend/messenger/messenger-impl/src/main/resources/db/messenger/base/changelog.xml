@@ -7,4 +7,8 @@
         <sqlFile relativeToChangelogFile="true" path="01-chat.sql"/>
     </changeSet>
 
+    <changeSet id="02" author="phyllosedis">
+        <sqlFile relativeToChangelogFile="true" path="02-demo-seed.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

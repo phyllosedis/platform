@@ -13,7 +13,7 @@ import ru.phyllosedis.platform.social.impl.repository.AuthorProfileRepository;
  * доменный профиль соцсети. В микросервисах сюда приедет Kafka,
  * логика не поменяется.
  */
-@Component
+@Component("socialUserRegisterListener")
 @RequiredArgsConstructor
 public class UserRegisterListener {
 
