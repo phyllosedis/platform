@@ -31,6 +31,8 @@ services:
       - ./env/platform-social.env
       - ./env/platform-banking-template.env
       - ./env/platform-banking.env
+      - ./env/platform-auth-template.env
+      - ./env/platform-auth.env
     networks:
       - app-network
     restart: unless-stopped
