@@ -10,7 +10,7 @@ name="platform"
 rcvar="platform_enable"
 
 platform_user="default"
-platform_dir="/opt/platform"
+platform_dir="/home/default/app/app/target"
 platform_jar="${platform_dir}/app.jar"
 platform_log="/var/log/platform.log"
 

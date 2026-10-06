@@ -1,4 +1,4 @@
 package ru.phyllosedis.platform.auth.api.dto;
 
-public class RegisterRequestDto {
+public record RegisterRequestDto(String name) {
 }

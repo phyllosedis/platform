@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.phyllosedis.platform.app.controller.banking.user.UserController;
+import ru.phyllosedis.platform.app.controller.auth.user.UserController;
 import ru.phyllosedis.platform.app.exception.handler.ErrorResponseDto;
 import ru.phyllosedis.platform.banking.api.exception.user.UserIdCannotBeNullException;
 import ru.phyllosedis.platform.banking.api.exception.user.UserNameCannotBeNullException;
